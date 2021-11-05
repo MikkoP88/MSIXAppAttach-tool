@@ -1,4 +1,4 @@
-# Powerahell tool for automatize MSIX App attach deployment workflow
+# Tool for automatize MSIX App attach deployment workflow
 This tool automatize MSIX Packet converting to MSIX app attach VHDX file with all needed attach and detach scipts. 
 
 What this tool do:
