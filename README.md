@@ -34,7 +34,7 @@ Parent Folder on VHDX.
 ```
 $parentFolder = "MSIX"
 ```
-Attach and Detach script MSIX Junction. This for attach and detach scipts creation.
+Attach and Detach script MSIX Junction. This only for attach and detach scipts.
 ```
 $msixJunction = "C:\temp\AppAttach\"
 ```
