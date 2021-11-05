@@ -9,8 +9,8 @@ What this tool do:
 4. Creating powershell script file for detach VHDX and MSIX app attach packet.
 ```
 ## Getting Started
-Edit lines inside MSIX_App_Container_Creator_1.0.ps1 file:
-### Location parameters:
+Download MSIX_App_Container_Creator_1.0.ps1 file and edit folders location parameters:
+### Folders location parameters:
 *Locations can be on shared folder.*
 
 MSIX Source Packet Location.
