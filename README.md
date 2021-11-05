@@ -1,4 +1,4 @@
-# app-attach-fast-deploy
+# msix-app-attach-tool-deployment
 This tool automatize MSIX app attach creation. 
 
 What this tool do:
