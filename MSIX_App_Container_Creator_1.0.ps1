@@ -2,17 +2,20 @@
 
 #Editable Parametters
 
-#MSIX Source Packet Location
-$msixPath = "Source MSIX Packet Folder"
-#MSIX App Attach VHDX Destination
+#Folders locations parameter
+#Source folder of MSIX application packet.
+$msixPath = "MSIX application Packet Folder"
+#Destination folder where MSIX App Attach VHDX file will be created.
 $vhdSrcFolder = "VHDX Destination Folder"
+#Folder where is MSIXMGR tool.
+$msixmgrPath = "MSIXMGR tool Folder"
+#Destination folder where tool creating powershell Sripts for Attach and Detach App Attach container.
+$scriptLocation = "Attach/Detach scipts destination folder"
+
+#Optionally parameters
 #Parent Folder on VHDX
 $parentFolder = "MSIX"
-#MSIXMGR tool location
-$msixmgrPath = "MSIXMGR tool Folder"
-#Location where save powershell Sripts to Attach Detach App Attach container
-$scriptLocation = "Location where you want to save attach and detach powershell script files"
-#Attach and Detach script MSIX Junction
+#Attach and Detach script MSIX Junction. This affect only attach/detach MSIX App Attach scipts
 $msixJunction = "C:\temp\AppAttach\"
 
 
@@ -89,12 +92,65 @@ $msixJunctionPass += '"'
 #Attach Passing parametter on script
 $attachAppScript = "
 $vhdSrcPass
-$packageNamePass$parentFolderPass$volumeGuidPass$msixJunctionPass
+$packageNamePass
+$parentFolderPass
+$volumeGuidPass
+$msixJunctionPass
 "
 
 $attachAppScript += @'
 
-#Mountvhdtry {    Mount-Diskimage -ImagePath $vhdSrc -NoDriveLetter -Access ReadOnly                     Write-Host ("Mounting of " + $vhdSrc + " was completed!") -BackgroundColor Green }catch{    Write-Host ("Mounting of " + $vhdSrc + " has failed!") -BackgroundColor Red}#Makelink$msixDest = "\\?\Volume{" + $volumeGuid + "}\"if (!(Test-Path $msixJunction)) {    md $msixJunction}$msixJunction = $msixJunction + $packageNamecmd.exe /c mklink /j $msixJunction $msixDest#region stage[Windows.Management.Deployment.PackageManager,Windows.Management.Deployment,ContentType=WindowsRuntime] | Out-NullAdd-Type -AssemblyName System.Runtime.WindowsRuntime$asTask = ([System.WindowsRuntimeSystemExtensions].GetMethods() | Where { $_.ToString() -eq 'System.Threading.Tasks.Task`1[TResult] AsTask[TResult,TProgress](Windows.Foundation.IAsyncOperationWithProgress`2[TResult,TProgress])'})[0]$asTaskAsyncOperation = $asTask.MakeGenericMethod([Windows.Management.Deployment.DeploymentResult], [Windows.Management.Deployment.DeploymentProgress])$packageManager = [Windows.Management.Deployment.PackageManager]::new()    $path = $msixJunction + $parentFolder + $packageName # needed if we do the pbisigned.vhd$path = ([System.Uri]$path).AbsoluteUri  $asyncOperation = $packageManager.StagePackageAsync($path, $null, "StageInPlace")                                                                                                                    $task = $asTaskAsyncOperation.Invoke($null, @($asyncOperation))        $task#endregion#Registers the application of the mounted container in the user context$path = "C:\Program Files\WindowsApps\" + $packageName + "\AppxManifest.xml"Add-AppxPackage -Path $path -DisableDevelopmentMode -Register 
+#Mountvhd
+try 
+{
+    Mount-Diskimage -ImagePath $vhdSrc -NoDriveLetter -Access ReadOnly                 
+    Write-Host ("Mounting of " + $vhdSrc + " was completed!") -BackgroundColor Green 
+}
+catch
+{
+    Write-Host ("Mounting of " + $vhdSrc + " has failed!") -BackgroundColor Red
+}
+
+
+
+#Makelink
+$msixDest = "\\?\Volume{" + $volumeGuid + "}\"
+
+if (!(Test-Path $msixJunction)) 
+{
+    md $msixJunction
+}
+
+$msixJunction = $msixJunction + $packageName
+
+cmd.exe /c mklink /j $msixJunction $msixDest
+
+
+#region stage
+[Windows.Management.Deployment.PackageManager,Windows.Management.Deployment,ContentType=WindowsRuntime] | Out-Null
+Add-Type -AssemblyName System.Runtime.WindowsRuntime
+$asTask = ([System.WindowsRuntimeSystemExtensions].GetMethods() | Where { $_.ToString() -eq 'System.Threading.Tasks.Task`1[TResult] AsTask[TResult,TProgress](Windows.Foundation.IAsyncOperationWithProgress`2[TResult,TProgress])'})[0]
+$asTaskAsyncOperation = $asTask.MakeGenericMethod([Windows.Management.Deployment.DeploymentResult], [Windows.Management.Deployment.DeploymentProgress])
+
+$packageManager = [Windows.Management.Deployment.PackageManager]::new()
+    
+$path = $msixJunction + $parentFolder + $packageName # needed if we do the pbisigned.vhd
+$path = ([System.Uri]$path).AbsoluteUri
+  
+$asyncOperation = $packageManager.StagePackageAsync($path, $null, "StageInPlace")
+                                                                                                                    
+$task = $asTaskAsyncOperation.Invoke($null, @($asyncOperation))
+        
+$task
+#endregion
+
+
+#Registers the application of the mounted container in the user context
+
+$path = "C:\Program Files\WindowsApps\" + $packageName + "\AppxManifest.xml"
+
+Add-AppxPackage -Path $path -DisableDevelopmentMode -Register
+ 
 '@
 #Creating Attach Script END
 
@@ -105,12 +161,27 @@ $attachAppScript | Out-File $attachExportParam
 
 #Creating Detach Script 
 #Attach Passing parametter on script
-$detachAppScript = "$vhdSrcPass
-$packageNamePass$msixJunctionPass"
+$detachAppScript = "
+$vhdSrcPass
+$packageNamePass
+$msixJunctionPass
+"
 
-$detachAppScript += @'#Deregisters the application of the mounted container in the user contextRemove-AppxPackage -PreserveRoamableApplicationData $packageName 
+$detachAppScript += @'
 
-#DerregisterRemove-AppxPackage -AllUsers -Package $packageNamecd $msixJunction rmdir $packageName -Recurse -Force -Confirm:$false#Dismount VHDdisMount-Diskimage -ImagePath $vhdSrc
+#Deregisters the application of the mounted container in the user context
+Remove-AppxPackage -PreserveRoamableApplicationData $packageName 
+
+
+#Derregister
+Remove-AppxPackage -AllUsers -Package $packageName
+
+cd $msixJunction 
+rmdir $packageName -Recurse -Force -Confirm:$false
+
+
+#Dismount VHD
+disMount-Diskimage -ImagePath $vhdSrc
 
 '@
 #Creating Detach Script END
