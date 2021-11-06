@@ -55,7 +55,7 @@ $msixJunction = "C:\temp\AppAttach\"
 ### Example of parameters
 On this example is used shared folder locations, so tool works with local and shared folders. Optionally parameters can be left with default values.
 ```
-#Folders locations' parameter
+#Folders locations parameter
 $msixPath = "\\Fileserver\MSIX-Packets"
 $vhdSrcFolder = "\\Fileserver\MSIX-VHDX"
 $msixmgrPath = "\\Fileserver\MSIX-Tool"
