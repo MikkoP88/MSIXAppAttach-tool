@@ -1,23 +1,25 @@
 # Tool for automatize MSIX App attach deployment workflow
-This tool automatize MSIX app attach VHDX file creation and also creating attach and detach scripts for MSIX app attach deployment.
+This tool automatizes MSIX app attach VHDX file creation and also creating attach and detach scripts for MSIX app attach deployment.
 
-What this tool do:
+What this tool does:
 ```
-1. Tool creating VHDX disk 
+1. Tool creates VHDX disk 
 2. Unpack MSIX packet on VHDX.
 3. Detach created VHDX disk.
-4. Creating powershell script file for attach VHDX and MSIX app attach.
-5. Creating powershell script file for detach VHDX and MSIX app attach.
+4. Creates powershell script file for attach VHDX and MSIX app attach.
+5. Creates powershell script file for detach VHDX and MSIX app attach.
 ```
 ## Getting Started
-Tools is tested and verified working with Windows 10 20H1 build on-premises environment, but can work with cloud enviroment and any Windows 10 build 1809 or later.
+Tool is tested and verified working with Windows 10 20H1 build on-premises environment, but can work with cloud enviroment and any Windows 10 build 1809 or later.
 
 ### Requiment
 - Application packet on .msix format, more info [MSIX Packaging Tool](https://docs.microsoft.com/en-us/windows/msix/packaging-tool/tool-overview)
-- If Application MSIX Packet size is over 20GB then you need at least 20GB system memory, else unpacking MSIX Packet fail. 
-- Download the [msixmgr tool](https://aka.ms/msixmgr) and extract the .zip on local computer or share folder.
-- Download MSIX_App_Container_Creator_1.0.ps1 file.
+- If Application MSIX Packet size is over 20GB then you need at least 20GB system memory, otherways unpacking MSIX Packet fail. 
 - Administrator privileges on your PC to run this tool.
+
+### Download these files/tools
+- [msixmgr tool](https://aka.ms/msixmgr) and extract the .zip on local computer or share folder.
+- MSIX_App_Container_Creator_1.0.ps1 file.
 
 ## Setting up
  Before running tool some parameters need to be edited on the MSIX_App_Container_Creator_1.0.ps1 file.
@@ -32,13 +34,13 @@ Destination folder where MSIX App Attach VHDX file will be created.
 ```
 $vhdSrcFolder = "VHDX Destination Folder"
 ```
-Folder where is MSIXMGR tool.
+Folder where MSIXMGR tool is located.
 ```
 $msixmgrPath = "MSIXMGR tool Folder"
 ```
 Destination folder where tool creating powershell Sripts for Attach and Detach App Attach container.
 ```
-$scriptLocation = "Attach/Detach scipts destination folder"
+$scriptLocation = "Attach/Detach scripts destination folder"
 ```
 ### Optionally parameters
 
@@ -46,14 +48,14 @@ Parent folder name on VHDX.
 ```
 $parentFolder = "MSIX"
 ```
-Attach and Detach script MSIX Junction. This affect only attach/detach MSIX App Attach scipts.
+Attach and Detach script MSIX Junction. This affect only attach/detach MSIX App Attach scripts.
 ```
 $msixJunction = "C:\temp\AppAttach\"
 ```
-### Example of parametters
-On this example is used shared folder locations, so tool work with local and shared folders. Optionally parametters can be leaved with default values.
+### Example of parameters
+On this example is used shared folder locations, so tool works with local and shared folders. Optionally parameters can be left with default values.
 ```
-#Folders locations parameter
+#Folders locations' parameter
 $msixPath = "\\Fileserver\MSIX-Packets"
 $vhdSrcFolder = "\\Fileserver\MSIX-VHDX"
 $msixmgrPath = "\\Fileserver\MSIX-Tool"
@@ -68,12 +70,12 @@ Open powershell and go folder where you put MSIX_App_Container_Creator_1.0.ps1 f
 ```
 cd "MSIX_App_Container_Creator_1.0.ps1 folder location"
 ```
-### Run tool with basic parameters. 
+### Run tool with basic parameters
 Use on -vhdsize parametter with MB example 500MB. 
 ```
 .\MSIX_App_Container_Creator_1.0.ps1 -packageName <Package> -vhdsize <SizeMB>
 ```
-### Run tool with optional volume name parameters. 
+### Run tool with optional volume name parameters
 Use -overrideVolumeName when package name before x64 part go over 27 Letters. 
 
 *Example: [WinRAR_1.0.0.0_x64__5q4ajw4wvsctp.msix] letters to count [WinRAR_1.0.0.0]*
@@ -82,7 +84,7 @@ Use -overrideVolumeName when package name before x64 part go over 27 Letters.
 .\MSIX_App_Container_Creator_1.0.ps1 -packageName <Package> -vhdsize <SizeMB> -overrideVolumeName <Volume Name>
 ```
 ### Deploy multiple MSIX Packets single Poweshell run
-Because tool automize MSIX app Attach creation process, can be run multiple creation on single powershell console.
+Because tool automizes MSIX app Attach creation process, it can be run multiple creation on single powershell console.
 ```
 cd "MSIX_App_Container_Creator_1.0.ps1 folder location"
 .\MSIX_App_Container_Creator_1.0.ps1 -packageName Packaget1 -vhdsize 500MB
